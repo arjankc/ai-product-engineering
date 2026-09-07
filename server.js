@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import express from 'express';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { checkInputSafety } from './lib/safety.js';
+import { normalizeQuery } from './lib/utils.js';
 // Session 7+: uncomment when you create the client
 // import { GoogleGenAI } from '@google/genai';
 // import { queryWithTools } from './lib/tools.js';
@@ -22,8 +24,16 @@ app.get('/health', (_req, res) => {
     res.json({ ok: true, timestamp: new Date().toISOString() });
 });
 
+/**
+ * Session 5 Stretch: read the app version from package.json.
+ */
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+app.get('/version', (_req, res) => {
+  res.json({ name: pkg.name, version: pkg.version });
+});
+
 app.post('/query', async (req, res) => {
-  const userInput = String(req.body?.query ?? '').trim();
+  const { query: userInput } = normalizeQuery(req.body?.query);
   if (!userInput) {
     return res.status(400).json({ error: 'No query provided' });
   }
