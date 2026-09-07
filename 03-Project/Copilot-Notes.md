@@ -33,6 +33,27 @@ Takes a raw text string, trims whitespace, enforces a maximum length of 500 char
 3. Error case:
    - Whitespace-only input (`'   '`) → `{ query: '' }` → `POST /query` responds `400 { error: 'No query provided' }`.
 
+Generated test code (runnable — verified passing against `lib/utils.js`):
+
+```js
+// run with: node -e "$(cat copilot-notes-test.mjs)" — or save as .mjs and run
+import assert from 'node:assert/strict';
+import { normalizeQuery } from './lib/utils.js';
+
+// 1. Happy path: trims surrounding whitespace
+assert.deepEqual(normalizeQuery('  What is RAG?  '), { query: 'What is RAG?' });
+
+// 2. Edge case: exactly 500 chars kept, 501+ truncated to 500
+assert.equal(normalizeQuery('x'.repeat(500)).query.length, 500);
+assert.equal(normalizeQuery('x'.repeat(510)).query.length, 500);
+
+// 3. Error case: empty / missing input -> empty query (server returns 400)
+assert.deepEqual(normalizeQuery('   '), { query: '' });
+assert.deepEqual(normalizeQuery(undefined), { query: '' });
+
+console.log('All normalizeQuery tests passed');
+```
+
 ## Lab 5.4 — Option B: Debug write-up
 
 - **What I broke:** In the `GET /health` handler I misspelled `res.json` as `res.jsn` (deliberate, Lab 5.2 Task 5).
