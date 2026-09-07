@@ -16,12 +16,10 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 /**
- * Incomplete on purpose (Session 5).
- * Core: return JSON { ok: true }.
+ * Session 5 Complete: Health check endpoint.
  */
 app.get('/health', (_req, res) => {
-  // TODO Session 5: send JSON instead of this placeholder
-  res.status(501).send('Health route not implemented');
+    res.json({ ok: true, timestamp: new Date().toISOString() });
 });
 
 app.post('/query', async (req, res) => {
