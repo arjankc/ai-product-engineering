@@ -1,0 +1,1 @@
+# CS101 Syllabus\nGrading: 50% Exams, 50% Labs. Late penalty: 10% per day.
