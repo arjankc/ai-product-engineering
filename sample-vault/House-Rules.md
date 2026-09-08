@@ -1,0 +1,1 @@
+# Campaign House Rules\nPotions take a bonus action to drink. Flanking gives +2 to hit, not advantage.

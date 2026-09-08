@@ -1,0 +1,1 @@
+# Last Session\nThe party defeated the goblin king but the rogue stole the cursed amulet. The wizard is currently at 5 HP.
