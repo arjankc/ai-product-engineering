@@ -1,0 +1,1 @@
+# Swayambhunath Stupa\nAlso known as the Monkey Temple. The eyes painted on the stupa represent Wisdom and Compassion.

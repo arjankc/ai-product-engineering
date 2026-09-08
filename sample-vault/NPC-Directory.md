@@ -1,1 +1,0 @@
-# The Blacksmith\nName: Grom. Gruff dwarf. Missing his left thumb. Will give a 10% discount if you bring him rare ores.

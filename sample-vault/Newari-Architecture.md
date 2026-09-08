@@ -1,0 +1,1 @@
+# Wood Carving\nThe intricately carved wooden struts often depict multi-armed deities. The traditional window is called a "Desay Madu Jhya".
