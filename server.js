@@ -1,72 +1,11 @@
-import 'dotenv/config';
 import express from 'express';
-import path from 'node:path';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { checkInputSafety } from './lib/safety.js';
-import { normalizeQuery } from './lib/utils.js';
-// Session 7+: uncomment when you create the client
-// import { GoogleGenAI } from '@google/genai';
-// import { queryWithTools } from './lib/tools.js';
-// import { ragQuery } from './lib/rag.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(express.json());
+app.use(express.static('public'));
 
-app.use(express.json({ limit: '2mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-/**
- * Session 5 Complete: Health check endpoint.
- */
-app.get('/health', (_req, res) => {
-    res.json({ ok: true, timestamp: new Date().toISOString() });
+app.post('/query', (req, res) => {
+  const { prompt } = req.body;
+  res.json({ response: "This is a mock response to: " + prompt });
 });
 
-/**
- * Session 5 Stretch: read the app version from package.json.
- */
-const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
-app.get('/version', (_req, res) => {
-  res.json({ name: pkg.name, version: pkg.version });
-});
-
-app.post('/query', async (req, res) => {
-  const { query: userInput } = normalizeQuery(req.body?.query);
-  if (!userInput) {
-    return res.status(400).json({ error: 'No query provided' });
-  }
-
-  // TODO Session 14: call checkInputSafety(userInput) and reject unsafe input
-  void checkInputSafety;
-
-  // TODO Session 7: replace mock with Gemini generateContent (server-side only)
-  // TODO Session 9: replace direct generate with ragQuery(ai, userInput)
-  //   return res.json({ response: result.answer, sources: result.sources });
-  const mockResponse = `Mock AI response to: ${userInput}`;
-  return res.json({ response: mockResponse, sources: [] });
-});
-
-/**
- * Session 11 Core: tool calling lives here so RAG can stay on /query.
- * After Session 7, create `ai`, then uncomment the body below.
- */
-app.post('/tools', async (req, res) => {
-  const userInput = String(req.body?.query ?? '').trim();
-  if (!userInput) {
-    return res.status(400).json({ error: 'No query provided' });
-  }
-
-  // TODO Session 11:
-  // const text = await queryWithTools(ai, userInput);
-  // return res.json({ response: text, sources: [] });
-  return res.status(501).json({
-    error:
-      'TODO Session 11: wire queryWithTools(ai, userInput). Keep RAG on /query.',
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`AI Product Engineering starter → http://localhost:${PORT}`);
-});
+app.listen(3000, () => console.log('Server running on port 3000'));
