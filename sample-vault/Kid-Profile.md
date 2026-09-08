@@ -1,1 +1,0 @@
-# Kid Dietary Profile\nPeanut allergy. Cannot have anything processed in a facility with peanuts.

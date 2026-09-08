@@ -1,1 +1,0 @@
-# Dad Dietary Profile\nSevere lactose intolerance. Always substitute butter with olive oil or dairy-free alternatives.

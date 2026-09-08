@@ -1,0 +1,1 @@
+# Nighthawk Router\nIf the internet LED blinks amber, it means the router cannot negotiate a connection with the modem. Action: Restart modem first, then router.
