@@ -1,1 +1,0 @@
-# Patan Durbar Square\nFeatures the Krishna Mandir, built in the 17th century entirely of stone. Distinctive Shikhara style.

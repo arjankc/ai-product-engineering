@@ -1,0 +1,1 @@
+# Rental Lease\nTenant is responsible for replacing lightbulbs and AC filters. Landlord handles plumbing and major appliance failures. Landlord email: landlord@example.com.
