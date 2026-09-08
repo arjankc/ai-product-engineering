@@ -1,1 +1,0 @@
-# Epson L3150\nError code E-11 means the ink pad is at the end of its service life. Do not attempt to print.

@@ -1,0 +1,1 @@
+# Tokyo 2024\nLoved the small alleyways in Shimokitazawa. The matcha latte at that corner shop was 5/5. Hated the crowds at Shibuya crossing.
