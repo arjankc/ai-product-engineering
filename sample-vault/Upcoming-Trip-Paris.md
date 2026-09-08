@@ -1,1 +1,0 @@
-# Paris 2026 Ideas\nNeed to find a vegan bakery near Montmartre. Budget is 50 EUR/day for food.

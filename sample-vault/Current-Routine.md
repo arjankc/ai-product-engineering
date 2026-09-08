@@ -1,0 +1,1 @@
+# Push Day\nFocus on chest and triceps. Need to ensure shoulder is warmed up properly for 10 minutes before starting.

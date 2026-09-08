@@ -1,1 +1,0 @@
-# Travel Preferences\nI hate crowded tourist traps. I prefer quiet cafes, walking tours, and vegan-friendly restaurants.
