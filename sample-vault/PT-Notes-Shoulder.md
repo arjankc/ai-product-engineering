@@ -1,1 +1,0 @@
-# Physical Therapy: Left Shoulder\nRotator cuff tendinitis. Avoid any heavy overhead pressing. Substitute overhead press with front raises or lateral raises using light bands.

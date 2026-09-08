@@ -1,1 +1,0 @@
-# Right Knee\nOccasional pain during deep squats. Limit squat depth to parallel or use leg press instead.

@@ -1,0 +1,1 @@
+# July Expenses\nAlready spent $250 on dining. Nearing the limit.

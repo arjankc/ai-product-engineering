@@ -1,0 +1,1 @@
+# 2026 Monthly Budget\nDining: $300. Groceries: $400. Utilities: $150. Business Software: $100.
