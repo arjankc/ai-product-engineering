@@ -1,16 +1,15 @@
 import express from 'express';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
 
 const app = express();
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
 app.use(express.static('public'));
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// Extremely simplified RAG mock implementation
 function getMockRagContext() {
   const vaultPath = path.join(process.cwd(), 'sample-vault');
   let context = '';
@@ -23,19 +22,52 @@ function getMockRagContext() {
   return context;
 }
 
+const trackTool = {
+  name: "get_walking_distance",
+  description: "Gets walking distance to next site",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      query: { type: Type.STRING, description: "Information needed" }
+    }
+  }
+};
+
 app.post('/query', async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, base64Image, mimeType } = req.body;
     const context = getMockRagContext();
-    
     const sysPrompt = "Use the following context to answer the user.\nContext:\n" + context;
     
+    let contents = [];
+    if (base64Image) {
+      contents.push({ inlineData: { data: base64Image, mimeType: mimeType }});
+    }
+    contents.push(prompt);
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: { systemInstruction: sysPrompt }
+      contents: contents,
+      config: { 
+        systemInstruction: sysPrompt,
+        tools: [{ functionDeclarations: [trackTool] }]
+      }
     });
-    res.json({ response: response.text });
+
+    if (response.functionCalls && response.functionCalls.length > 0) {
+       // Mock handling the tool call
+       const finalResponse = await ai.models.generateContent({
+         model: 'gemini-2.5-flash',
+         contents: [
+            { text: prompt },
+            { functionCall: response.functionCalls[0] },
+            { functionResponse: { name: "get_walking_distance", response: { "distance_km": 1.2, "time_mins": 15 } } }
+         ]
+       });
+       res.json({ response: finalResponse.text });
+    } else {
+       res.json({ response: response.text });
+    }
   } catch (error) {
     res.status(500).json({ response: error.message });
   }
