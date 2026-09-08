@@ -1,71 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Product Engineering — prototype</title>
+  <meta charset="UTF-8">
+  <title>Automated Expense & Tax Analyst</title>
   <style>
-    :root { font-family: system-ui, sans-serif; color: #111; }
-    body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
-    textarea, select { width: 100%; min-height: 6rem; }
-    select { min-height: auto; margin-bottom: 0.75rem; }
-    button { margin-top: 0.75rem; padding: 0.5rem 1rem; }
-    #results { margin-top: 1.5rem; padding: 1rem; background: #f4f4f4; min-height: 4rem; white-space: pre-wrap; font-family: ui-monospace, monospace; }
-    #sources { color: #555; font-size: 0.9rem; }
-    .hint { color: #666; font-size: 0.9rem; }
-    .state-empty { color: #888; }
-    .state-error { color: #b00020; }
+    body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
+    textarea { width: 100%; height: 100px; margin-bottom: 1rem; }
+    #output { margin-top: 2rem; padding: 1rem; background: #f0f0f0; border-radius: 8px; white-space: pre-wrap;}
+    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <h1>Course prototype</h1>
-  <p class="hint">
-    <strong>Session 6 Core:</strong> replace this starter UI for <em>your</em> product
-    (product title, domain control + query, empty / loading / error states).
-    Leaving this page unchanged fails Core.
-  </p>
-  <form id="ask-form">
-    <label for="mode">Context (example domain control — replace for your product)</label>
-    <select id="mode" name="mode">
-      <option value="general">General</option>
-      <option value="notes">Lecture notes</option>
-      <option value="policy">Policy docs</option>
-    </select>
-    <label for="query">Your question</label>
-    <textarea id="query" name="query" required></textarea>
-    <button type="submit">Submit</button>
-  </form>
-  <section id="results" class="state-empty" aria-live="polite">Ask a question to see results.</section>
-  <p id="sources"></p>
+  <h1>Automated Expense & Tax Analyst</h1>
+  <textarea id="prompt" placeholder="Enter your prompt here..."></textarea>
+  <br>
+  <button id="submitBtn">Send</button>
+  <p id="loading" class="hidden">Loading...</p>
+  <div id="output"></div>
+
   <script>
-    document.getElementById('ask-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const query = document.getElementById('query').value.trim();
-      const mode = document.getElementById('mode').value;
-      const results = document.getElementById('results');
-      const sources = document.getElementById('sources');
-      results.className = '';
-      results.textContent = 'Loading…';
-      sources.textContent = '';
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      const prompt = document.getElementById('prompt').value;
+      const output = document.getElementById('output');
+      const loading = document.getElementById('loading');
+      
+      output.innerText = '';
+      loading.classList.remove('hidden');
+
       try {
         const res = await fetch('/query', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, mode }),
+          body: JSON.stringify({ prompt })
         });
         const data = await res.json();
-        if (!res.ok) {
-          results.className = 'state-error';
-          results.textContent = data.error || 'Request failed';
-          return;
-        }
-        results.textContent = data.response || JSON.stringify(data);
-        if (Array.isArray(data.sources) && data.sources.length) {
-          sources.textContent = 'Sources: ' + data.sources.join(', ');
-        }
+        output.innerText = data.response;
       } catch (err) {
-        results.className = 'state-error';
-        results.textContent = String(err);
+        output.innerText = 'Error: ' + err.message;
+      } finally {
+        loading.classList.add('hidden');
       }
     });
   </script>
