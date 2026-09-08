@@ -1,0 +1,1 @@
+# Fiddle Leaf Fig\nVery dramatic. Dropped two leaves last week. Might be reacting to the AC draft.

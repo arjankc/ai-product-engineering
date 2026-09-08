@@ -1,1 +1,0 @@
-# Freelance Tax Rules\nMeals with clients are 50% deductible. Software subscriptions for design/code are 100% deductible.

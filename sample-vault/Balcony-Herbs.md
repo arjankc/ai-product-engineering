@@ -1,0 +1,1 @@
+# Basil & Mint\nOn the south balcony. Needs daily watering in summer. Bring inside if temperature drops below 10C.
