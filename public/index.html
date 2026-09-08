@@ -14,6 +14,8 @@
   <h1>Context-Aware Academic Assistant</h1>
   <textarea id="prompt" placeholder="Enter your prompt here..."></textarea>
   <br>
+  <input type="file" id="imageInput" accept="image/*">
+  <br><br>
   <button id="submitBtn">Send</button>
   <p id="loading" class="hidden">Loading...</p>
   <div id="output"></div>
@@ -21,17 +23,31 @@
   <script>
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const prompt = document.getElementById('prompt').value;
+      const fileInput = document.getElementById('imageInput');
       const output = document.getElementById('output');
       const loading = document.getElementById('loading');
       
       output.innerText = '';
       loading.classList.remove('hidden');
 
+      let base64Image = null;
+      let mimeType = null;
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        mimeType = file.type;
+        const reader = new FileReader();
+        base64Image = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+      }
+
       try {
         const res = await fetch('/query', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ prompt, base64Image, mimeType })
         });
         const data = await res.json();
         output.innerText = data.response;
