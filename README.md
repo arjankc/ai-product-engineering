@@ -30,6 +30,27 @@ Open [http://localhost:3000](http://localhost:3000). `POST /query` returns a **m
 
 Deliverable templates live in **`03-Project/`**. Sample Markdown for embeddings lives in **`sample-vault/`**.
 
+## Repository & Branch Structure
+
+This repository is structured to support both starter development and track-based project work across 10 distinct domains:
+
+- **`main`**: Starter kit template containing base server setup, utility libraries, and evaluation scripts.
+- **`track-01` to `track-10`**: Student starter branches pre-populated with track-specific Product Requirement Documents (PRDs) and customized seed Obsidian vaults (`sample-vault/`).
+- **`solution-track-01` to `solution-track-10`**: Reference solution branches containing complete backend, RAG pipeline, tool calling, and custom UI implementations for instructor review and reference.
+
+### Track Domain Summary
+
+1. **Track 01**: Context-Aware Academic Assistant
+2. **Track 02**: Smart Pantry Recipe Architect
+3. **Track 03**: Local Hardware Troubleshooting Bot
+4. **Track 04**: Travel Log & Itinerary Copilot
+5. **Track 05**: Personal Fitness & Rehab Coach
+6. **Track 06**: Automated Expense & Tax Analyst
+7. **Track 07**: Household Plant Care & Botany Assistant
+8. **Track 08**: Tabletop RPG & Board Game Master
+9. **Track 09**: Local Heritage & Architecture Guide
+10. **Track 10**: Home Maintenance & DIY Helper
+
 ## Lab map
 
 | Session | What you do in this kit |
