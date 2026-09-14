@@ -7,7 +7,7 @@ import { GoogleGenAI } from '@google/genai';
 import { checkInputSafety } from './lib/safety.js';
 import { normalizeQuery } from './lib/utils.js';
 import { ragQuery } from './lib/rag.js';
-// import { queryWithTools } from './lib/tools.js';
+import { queryWithTools } from './lib/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -19,7 +19,7 @@ if (!apiKey) {
 }
 const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '12mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (_req, res) => {
@@ -37,11 +37,16 @@ app.post('/query', async (req, res) => {
     return res.status(400).json({ error: 'No query provided' });
   }
 
-  // TODO Session 14: call checkInputSafety(userInput) and reject unsafe input
-  void checkInputSafety;
+  const safety = checkInputSafety(userInput);
+  if (!safety.safe) {
+    return res.status(400).json({ error: safety.reason || 'Unsafe input' });
+  }
 
   try {
-    const result = await ragQuery(ai, userInput);
+    const result = await ragQuery(ai, userInput, {
+      base64Image: req.body?.base64Image,
+      mimeType: req.body?.mimeType,
+    });
     return res.json({ response: result.answer, sources: result.sources });
   } catch (err) {
     return res.status(500).json({ error: err.message || String(err) });
@@ -54,12 +59,19 @@ app.post('/tools', async (req, res) => {
     return res.status(400).json({ error: 'No query provided' });
   }
 
-  return res.status(501).json({
-    error:
-      'TODO Session 11: wire queryWithTools(ai, userInput). Keep RAG on /query.',
-  });
+  const safety = checkInputSafety(userInput);
+  if (!safety.safe) {
+    return res.status(400).json({ error: safety.reason || 'Unsafe input' });
+  }
+
+  try {
+    const text = await queryWithTools(ai, userInput);
+    return res.json({ response: text, sources: [] });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || String(err) });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Academic Assistant (Phase 3 RAG) → http://localhost:${PORT}`);
+  console.log(`Academic Assistant (Phase 4) → http://localhost:${PORT}`);
 });

@@ -74,9 +74,10 @@
 
     <label for="image">Optional handout / worksheet photo (Stretch)</label>
     <input id="image" name="image" type="file" accept="image/*" />
-    <p class="hint">Vision is wired in Phase 4. You can attach a file anytime; text-only works from Phase 1.</p>
+    <p class="hint">Optional: attach a worksheet photo. The assistant explains it using vault notes only.</p>
 
-    <button type="submit" id="submit-btn">Ask</button>
+    <button type="submit" id="submit-btn">Ask (RAG)</button>
+    <button type="button" id="tools-btn">Ask with tools</button>
   </form>
 
   <section id="results" class="state-empty" aria-live="polite">Ask a question grounded in the course vault.</section>
@@ -96,29 +97,32 @@
       });
     }
 
-    document.getElementById('ask-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
+    async function ask(endpoint) {
       const query = document.getElementById('query').value.trim();
       const mode = document.getElementById('mode').value;
       const imageInput = document.getElementById('image');
       const results = document.getElementById('results');
       const sources = document.getElementById('sources');
-      const button = document.getElementById('submit-btn');
+      const submitBtn = document.getElementById('submit-btn');
+      const toolsBtn = document.getElementById('tools-btn');
 
       results.className = '';
       results.textContent = 'Loading…';
       sources.textContent = '';
-      button.disabled = true;
+      submitBtn.disabled = true;
+      toolsBtn.disabled = true;
 
       try {
         const body = { query, mode };
-        const file = imageInput.files?.[0];
-        if (file) {
-          body.base64Image = await fileToBase64(file);
-          body.mimeType = file.type || 'image/jpeg';
+        if (endpoint === '/query') {
+          const file = imageInput.files?.[0];
+          if (file) {
+            body.base64Image = await fileToBase64(file);
+            body.mimeType = file.type || 'image/jpeg';
+          }
         }
 
-        const res = await fetch('/query', {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -137,9 +141,16 @@
         results.className = 'state-error';
         results.textContent = String(err);
       } finally {
-        button.disabled = false;
+        submitBtn.disabled = false;
+        toolsBtn.disabled = false;
       }
+    }
+
+    document.getElementById('ask-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      ask('/query');
     });
+    document.getElementById('tools-btn').addEventListener('click', () => ask('/tools'));
   </script>
 </body>
 </html>
