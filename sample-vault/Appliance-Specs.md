@@ -1,1 +1,0 @@
-# HVAC\nUses 16x20x1 MERV 8 filters. Replace every 90 days.

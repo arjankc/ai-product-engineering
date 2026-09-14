@@ -1,1 +1,0 @@
-# Interior Paint\nLiving Room: Sherwin Williams "Agreeable Gray" (Hex #D1CBC1). Bedroom: "Naval" blue.
