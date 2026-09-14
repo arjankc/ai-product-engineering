@@ -1,1 +1,60 @@
-# Track 2: Smart Pantry & Recipe Architect\n\n**The Problem / Concept**\nDeciding what to cook based on fragmented leftover ingredients and specific household dietary restrictions.\n\n## Project Overview & Objectives\nFood waste is a major issue, and meal planning is tedious when balancing what's expiring in the fridge with complex household dietary restrictions. This application acts as a personal chef that generates recipes dynamically, ensuring no allergens are included.\n\nIf you select this track, your goal is to build a functional Minimum Viable Prototype (MVP) that seamlessly integrates a Node.js/Express backend with Google's Gemini API, utilizing Retrieval-Augmented Generation (RAG), multimodal vision, and autonomous tool calling.\n\n---\n\n## Detailed Requirements Document (PRD)\n\n### 1. RAG (Obsidian) Core Requirement\nTo prevent hallucination, the AI must be grounded in a specific, personal knowledge base. You will build this using Markdown files in Obsidian.\n\n* **Knowledge Base Content**: The knowledge base consists of Markdown files detailing household profiles and family recipes. The RAG pipeline must retrieve the dietary restrictions *before* generation.\n* **Starter Vault**: Check the `sample-vault/` directory in this branch for pre-populated mock data to test your pipeline immediately!\n\n### 2. Multimodal (Vision) Stretch Goal\nAI is not just text. Modern products must perceive the world.\n\n* **Vision Use Case**: Users can upload a photo of an open fridge or pantry shelf. The system will prompt Gemini to identify visible ingredients and propose a safe meal.\n\n### 3. Tool Calling Stretch Goal\nAgents need to take actions in the real world or fetch real-time data that isn't in their RAG database.\n\n* **Tool Definition**: Implement a calculate_nutrition(ingredients) tool to fetch calorie counts and macronutrient breakdowns.\n\n---\n\n## Starter Kit Instructions\nThis repository contains the Node/Express starter kit.\n1. Run `npm install`\n2. Copy `.env.example` to `.env` and add your Gemini API Key.\n3. Run `npm run dev`\n
+# Track 2: Smart Pantry & Recipe Architect
+
+**Problem:** Meal planning fails when leftovers, expiry, and household allergies are scattered across memory and chatbots invent unsafe recipes.
+
+## Overview
+
+Build a kitchen assistant grounded **only** in household profiles, pantry inventory, and trusted recipes. It must respect allergens and refuse ingredients that violate household rules.
+
+Stack: Node/Express starter on this branch + Gemini (`gemini-2.5-flash` / `gemini-embedding-2`) + RAG over `sample-vault/` + optional vision and tool calling.
+
+## Setup
+
+```bash
+git fetch --tags
+git checkout track-02
+cp .env.example .env   # add GEMINI_API_KEY
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. See also [BRANCHES.md](BRANCHES.md) and [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).
+
+## PRD
+
+### 1. RAG (Core)
+
+- Keep **5–10** Markdown notes (starter vault included).
+- Embed, retrieve, answer with citations (`sources` on `/query`).
+- Retrieve dietary restrictions **before** suggesting meals.
+
+### 2. Multimodal (Stretch)
+
+- Upload an open fridge / pantry photo.
+- Identify visible ingredients and propose a **safe** meal using vault rules only.
+
+### 3. Tool calling (Stretch)
+
+- Declare `calculate_nutrition` with param `ingredients` (string array or comma-separated list).
+- Return a small hardcoded macro estimate via `POST /tools`.
+
+## Starter vault
+
+| Note | Role |
+|------|------|
+| `Dad-Profile.md` | Lactose intolerance rules |
+| `Kid-Profile.md` | Peanut allergy (hard refuse) |
+| `Pantry-Inventory.md` | What is on hand |
+| `Family-Recipes.md` | Trusted base recipes |
+| `Allergen-Rules.md` | Cross-contamination |
+| `Expiry-Log.md` | Use-soon items |
+| `Shopping-Staples.md` | Usual restocks |
+
+## Solution reference
+
+```bash
+git fetch --tags
+git checkout solution-02-phase-2
+```
+
+Full map: [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).
