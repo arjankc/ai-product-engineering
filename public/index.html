@@ -41,7 +41,7 @@
     <input id="image" name="image" type="file" accept="image/*" />
     <p class="hint">Images add visible evidence; answers must still be grounded in the vault.</p>
     <button type="submit" id="submit-btn">Ask with RAG</button>
-
+    <button type="button" id="tools-btn">Ask with tools</button>
   </form>
   <section id="results" class="state-empty" aria-live="polite">Ask a question grounded in the seven-note starter vault.</section>
   <p id="sources"></p>
@@ -61,6 +61,8 @@
       const results=document.getElementById('results');
       const sources=document.getElementById('sources');
       const submitBtn=document.getElementById('submit-btn');
+      const toolsBtn = document.getElementById('tools-btn');
+      toolsBtn.disabled = true;
       results.className=''; results.textContent='Loading…'; sources.textContent=''; submitBtn.disabled=true;
       try {
         const body={ query, mode };
@@ -71,9 +73,11 @@
         results.textContent=data.response||JSON.stringify(data);
         if (Array.isArray(data.sources)&&data.sources.length) sources.textContent='Sources: '+data.sources.join(', ');
       } catch (error) { results.className='state-error'; results.textContent=String(error); }
-      finally { submitBtn.disabled=false; }
+      finally { submitBtn.disabled=false;
+        toolsBtn.disabled = false; }
     }
     document.getElementById('ask-form').addEventListener('submit',(event) => { event.preventDefault(); ask('/query'); });
+    document.getElementById('tools-btn').addEventListener('click', () => ask('/tools'));
   </script>
 </body>
 </html>
