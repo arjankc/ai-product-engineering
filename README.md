@@ -1,1 +1,65 @@
-# Track 1: Context-Aware Academic Assistant\n\n**The Problem / Concept**\nGeneric AI hallucinates syllabus details and teaches methods different from the professor's.\n\n## Project Overview & Objectives\nStudents often struggle when using generic LLMs for studying because the AI doesn't know the specific grading rubrics, syllabus constraints, or idiosyncratic methods taught by their professor. This project builds a hyper-local, context-aware academic assistant that refuses to answer questions outside of the provided course material.\n\nIf you select this track, your goal is to build a functional Minimum Viable Prototype (MVP) that seamlessly integrates a Node.js/Express backend with Google's Gemini API, utilizing Retrieval-Augmented Generation (RAG), multimodal vision, and autonomous tool calling.\n\n---\n\n## Detailed Requirements Document (PRD)\n\n### 1. RAG (Obsidian) Core Requirement\nTo prevent hallucination, the AI must be grounded in a specific, personal knowledge base. You will build this using Markdown files in Obsidian.\n\n* **Knowledge Base Content**: Create an Obsidian vault containing 5-10 markdown files representing lecture notes, course syllabus, and assignment prompts. The AI must retrieve relevant chunks and cite the specific file when answering.\n* **Starter Vault**: Check the `sample-vault/` directory in this branch for pre-populated mock data to test your pipeline immediately!\n\n### 2. Multimodal (Vision) Stretch Goal\nAI is not just text. Modern products must perceive the world.\n\n* **Vision Use Case**: The user interface should allow uploading an image. The AI uses Gemini's Vision capabilities to extract the text/structure and explains it using only the principles found in the RAG notes.\n\n### 3. Tool Calling Stretch Goal\nAgents need to take actions in the real world or fetch real-time data that isn't in their RAG database.\n\n* **Tool Definition**: Implement a tool-calling schema that can trigger an action like get_upcoming_deadlines(). This tool should return hardcoded JSON of deadlines.\n\n---\n\n## Starter Kit Instructions\nThis repository contains the Node/Express starter kit.\n1. Run `npm install`\n2. Copy `.env.example` to `.env` and add your Gemini API Key.\n3. Run `npm run dev`\n
+# Track 1: Context-Aware Academic Assistant
+
+**Problem:** Generic AI invents syllabus details and teaches methods that differ from the professor's.
+
+## Overview
+
+Build a study assistant grounded **only** in your course materials (syllabus, lectures, assignments, rubrics). It should refuse or clearly hedge when a question is outside the vault.
+
+Stack: Node/Express starter on this branch + Gemini (`gemini-2.5-flash` / `gemini-embedding-2`) + RAG over `sample-vault/` + optional vision and tool calling.
+
+## Setup
+
+```bash
+git fetch --tags
+git checkout track-01
+cp .env.example .env   # add GEMINI_API_KEY
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. Lab map, gates, and solution walkthrough: see `README` history on `main`, plus [BRANCHES.md](BRANCHES.md) and [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).
+
+## PRD
+
+### 1. RAG (Core)
+
+- Keep **5–10** Markdown notes in Obsidian / `sample-vault/` (starter notes are included).
+- Embed with `npm run build-embeddings`, retrieve with cosine similarity, answer via RAG.
+- Cite source filenames in the UI (`sources` from `/query`).
+
+### 2. Multimodal (Stretch)
+
+- Allow image upload (worksheet / handout photo).
+- Extract text/structure with Gemini Vision and explain using principles from the vault only.
+
+### 3. Tool calling (Stretch)
+
+- Declare `get_upcoming_deadlines` (optional `course_code`).
+- Return hardcoded JSON deadlines (e.g. Assignment 1, midterm) via `POST /tools` or the tool loop.
+
+## Starter vault
+
+| Note | Role |
+|------|------|
+| `Syllabus.md` | Grading, late policy, contact |
+| `Lecture-01-Big-O.md` | Professor's preferred Big-O framing |
+| `Lecture-02-Recursion.md` | Recursion teaching rules |
+| `Assignment-1.md` | JS assignment constraints |
+| `Assignment-2.md` | Data-structures assignment |
+| `Rubric-Exams.md` | How exams are scored |
+| `Office-Hours.md` | When/how to get help |
+| `FAQ-Course.md` | Common policy Q&A |
+
+Replace these with your real course notes before showcase.
+
+## Solution reference
+
+Attempt labs on this branch first. When stuck:
+
+```bash
+git fetch --tags
+git checkout solution-01-phase-2   # example: after Session 7
+```
+
+Full phase map: [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).
