@@ -1,1 +1,0 @@
-# Monstera Deliciosa\nRepotted in March. Using chunky soil mix. Water only when top 2 inches are dry. Prefers bright indirect light.
