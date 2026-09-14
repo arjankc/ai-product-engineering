@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { GoogleGenAI } from '@google/genai';
 import { checkInputSafety } from './lib/safety.js';
 import { normalizeQuery } from './lib/utils.js';
+import { ragQuery } from './lib/rag.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -27,12 +28,8 @@ app.post('/query', async (req, res) => {
   if (!userInput) return res.status(400).json({ error: 'No query provided' });
   void checkInputSafety;
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: userInput,
-      config: { systemInstruction: 'You are Home Maintenance Helper. Prefer domain-specific answers and clearly state uncertainty.' },
-    });
-    return res.json({ response: response.text ?? '', sources: [] });
+    const result = await ragQuery(ai, userInput);
+    return res.json({ response: result.answer, sources: result.sources });
   } catch (error) {
     return res.status(500).json({ error: error.message || String(error) });
   }
@@ -44,4 +41,4 @@ app.post('/tools', async (req, res) => {
   return res.status(501).json({ error: 'Phase 4 wires the domain tool while RAG remains on /query.' });
 });
 
-app.listen(PORT, () => console.log(`Home Maintenance Helper (Phase 2) → http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Home Maintenance Helper (Phase 3) → http://localhost:${PORT}`));
