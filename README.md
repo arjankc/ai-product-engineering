@@ -1,1 +1,62 @@
-# Track 3: Local Hardware Troubleshooting Bot\n\n**The Problem / Concept**\nNon-technical users need help fixing specific household or office equipment without sorting through generic web forums.\n\n## Project Overview & Objectives\nWhen the internet goes down or a printer breaks, generic AI advice is frustrating. This bot knows the exact model numbers, IP addresses, and idiosyncrasies of your specific local hardware setup.\n\nIf you select this track, your goal is to build a functional Minimum Viable Prototype (MVP) that seamlessly integrates a Node.js/Express backend with Google's Gemini API, utilizing Retrieval-Augmented Generation (RAG), multimodal vision, and autonomous tool calling.\n\n---\n\n## Detailed Requirements Document (PRD)\n\n### 1. RAG (Obsidian) Core Requirement\nTo prevent hallucination, the AI must be grounded in a specific, personal knowledge base. You will build this using Markdown files in Obsidian.\n\n* **Knowledge Base Content**: Ingest Markdown versions of PDF manuals for specific devices alongside a 'Network_Topology.md' file.\n* **Starter Vault**: Check the `sample-vault/` directory in this branch for pre-populated mock data to test your pipeline immediately!\n\n### 2. Multimodal (Vision) Stretch Goal\nAI is not just text. Modern products must perceive the world.\n\n* **Vision Use Case**: Allow users to upload photos of blinking LED error sequences on a router or an obscure error screen. The AI translates the visual state into an error code.\n\n### 3. Tool Calling Stretch Goal\nAgents need to take actions in the real world or fetch real-time data that isn't in their RAG database.\n\n* **Tool Definition**: Create a ping_device(ip_address) or check_internet_status() tool to alter troubleshooting advice.\n\n---\n\n## Starter Kit Instructions\nThis repository contains the Node/Express starter kit.\n1. Run `npm install`\n2. Copy `.env.example` to `.env` and add your Gemini API Key.\n3. Run `npm run dev`\n
+# Track 3: Local Hardware Troubleshooting Bot
+
+**Problem:** Device troubleshooting becomes unreliable when generic assistants invent reset steps, ignore the local network layout, or recommend procedures for the wrong model.
+
+## Overview
+
+Build a support assistant grounded **only** in your home or lab device manuals, topology notes, and known fixes. It should diagnose cautiously, cite the relevant note, and clearly escalate electrical or hardware-safety risks.
+
+Stack: Node/Express starter on this branch + Gemini (`gemini-2.5-flash` / `gemini-embedding-2`) + RAG over `sample-vault/` + optional vision and tool calling.
+
+## Setup
+
+```bash
+git fetch --tags
+git checkout track-03
+cp .env.example .env   # add GEMINI_API_KEY
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. See also [BRANCHES.md](BRANCHES.md) and [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).
+
+## PRD
+
+### 1. RAG (Core)
+
+- Keep **5–10** Markdown notes (seven starter notes are included).
+- Embed with `npm run build-embeddings`, retrieve with cosine similarity, and answer with source citations.
+- Treat explicit safety, booking, or restriction notes as higher priority than general suggestions.
+
+### 2. Multimodal (Stretch)
+
+- Upload a device label, cable layout, or indicator-light photo.
+- Interpret it using principles and constraints from the vault only.
+
+### 3. Tool calling (Stretch)
+
+- Declare `ping_device` with `ip_address` (string).
+- Return mock connectivity status: `192.168.1.1` is online, `192.168.1.50` is offline, and all other addresses are unknown.
+
+## Starter vault
+
+| Note | Role |
+|---|---|
+| `Network-Topology.md` | Network Topology |
+| `Router-Manual.md` | Router Manual |
+| `Printer-Manual.md` | Office Printer Manual |
+| `Known-Fixes.md` | Known Fixes |
+| `Safety-Escalation.md` | Safety and Escalation |
+| `Device-Inventory.md` | Device Inventory |
+| `Troubleshooting-Checklist.md` | Troubleshooting Checklist |
+
+Replace the examples with your own trustworthy notes before showcase.
+
+## Solution reference
+
+```bash
+git fetch --tags
+git checkout solution-03-phase-2
+```
+
+Full map: [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).

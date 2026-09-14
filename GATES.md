@@ -2,6 +2,8 @@
 
 Use this when a lab fails or a student missed a prior session.
 
+Stuck on implementation? Prefer the matching **phase tag** on your track’s solution line (see [BRANCHES.md](BRANCHES.md)), e.g. `git checkout solution-01-phase-3` after a failed Session 9—then return to your track branch.
+
 ## Hard gates
 
 | Before… | You must have… |
