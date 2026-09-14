@@ -24,7 +24,7 @@ Save your diagram link or image in this folder after Session 6: `03-Project/arch
 | **RAG Module** | `lib/rag.js` & `lib/embeddings.js` | Text chunking, embedding generation via `gemini-embedding-2`, cosine similarity lookup |
 | **Tool Engine** | `lib/tools.js` | Tool declarations (`calculate`, `search_knowledge_base`) and tool call execution loop |
 | **Safety Guard** | `lib/safety.js` | Regex injection pattern detector and length limit enforcer |
-| **Vector Index** | `embeddings.json` | Local JSON store of note file chunks and 768-dim float vector embeddings |
+| **Vector Index** | `embeddings.json` | Local JSON store of note file chunks and float vector embeddings (Gemini Embedding 2 defaults to **3072** dims; 768/1536 optional via `outputDimensionality`) |
 
 ## 3. Data Flow
 
