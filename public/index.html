@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Product Engineering — prototype</title>
+  <title>Context-Aware Academic Assistant</title>
   <style>
     :root { font-family: system-ui, sans-serif; color: #111; }
     body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
@@ -18,18 +18,17 @@
   </style>
 </head>
 <body>
-  <h1>Course prototype</h1>
+  <h1>Context-Aware Academic Assistant</h1>
   <p class="hint">
-    <strong>Session 6 Core:</strong> replace this starter UI for <em>your</em> product
-    (product title, domain control + query, empty / loading / error states).
-    Leaving this page unchanged fails Core.
+    Track 1 starter UI. <strong>Session 6 Core:</strong> customize this further for your product
+    (layout, empty / loading / error states). Leaving the generic kit look fails Core.
   </p>
   <form id="ask-form">
-    <label for="mode">Context (example domain control — replace for your product)</label>
+    <label for="mode">Ask about</label>
     <select id="mode" name="mode">
-      <option value="general">General</option>
-      <option value="notes">Lecture notes</option>
-      <option value="policy">Policy docs</option>
+      <option value="syllabus">Syllabus &amp; policies</option>
+      <option value="lectures">Lecture notes</option>
+      <option value="assignments">Assignments &amp; rubrics</option>
     </select>
     <label for="query">Your question</label>
     <textarea id="query" name="query" required></textarea>
