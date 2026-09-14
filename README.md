@@ -46,7 +46,8 @@ Deliverable templates live in **`03-Project/`**. Sample Markdown for embeddings 
 | `track-01` … `track-10` (tags) / `track-NN-…` (branches) | Students | Track PRD + domain seed vault — **start here for your product** |
 | `solution-NN-phase-1` … `phase-4` (tags) / `solution-track-NN-…` | Students + instructors | **Step-by-step** reference (one commit per phase); tip = full build |
 
-How to walk solutions commit-by-commit (and the full name table): **[BRANCHES.md](BRANCHES.md)**.
+How to walk solutions commit-by-commit (and the full name table): **[BRANCHES.md](BRANCHES.md)**.  
+Classroom norms and when to open each phase: **[HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md)**.
 
 ### Track domain summary
 
@@ -71,7 +72,8 @@ How to walk solutions commit-by-commit (and the full name table): **[BRANCHES.md
 | `solution-NN-phase-4` | Multimodal & Tools | Sessions 10–12 |
 | `solution-NN` | Full solution tip | Showcase reference |
 
-Example: after Session 7, `git checkout solution-01-phase-2` to inspect the Gemini step for Track 1—then return to your track branch to keep building.
+Example: after Session 7, `git checkout solution-01-phase-2` to inspect the Gemini step for Track 1—then return to your track branch to keep building. See [HOW-TO-USE-SOLUTIONS.md](HOW-TO-USE-SOLUTIONS.md).
+
 ## Lab map
 
 | Session | What you do in this kit |
