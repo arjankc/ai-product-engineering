@@ -6,13 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { GoogleGenAI } from '@google/genai';
 import { checkInputSafety } from './lib/safety.js';
 import { normalizeQuery } from './lib/utils.js';
+import { ragQuery } from './lib/rag.js';
 // import { queryWithTools } from './lib/tools.js';
-// import { ragQuery } from './lib/rag.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MODEL = 'gemini-2.5-flash';
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
@@ -42,16 +41,8 @@ app.post('/query', async (req, res) => {
   void checkInputSafety;
 
   try {
-    // Phase 2: direct Gemini (Phase 3 replaces this with ragQuery)
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents: userInput,
-      config: {
-        systemInstruction:
-          'You are a CS101 academic assistant. Prefer course-specific answers. If unsure, say you do not know.',
-      },
-    });
-    return res.json({ response: response.text ?? '', sources: [] });
+    const result = await ragQuery(ai, userInput);
+    return res.json({ response: result.answer, sources: result.sources });
   } catch (err) {
     return res.status(500).json({ error: err.message || String(err) });
   }
@@ -70,5 +61,5 @@ app.post('/tools', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Academic Assistant (Phase 2) → http://localhost:${PORT}`);
+  console.log(`Academic Assistant (Phase 3 RAG) → http://localhost:${PORT}`);
 });
