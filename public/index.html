@@ -5,40 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tabletop RPG & Board Game Master</title>
   <style>
-    :root { font-family:"Segoe UI",system-ui,sans-serif; color:#172033; background:#f8fafc; }
-    body { max-width:42rem; margin:2rem auto; padding:0 1rem; }
-    header { border-left:.4rem solid #7c2d12; padding-left:1rem; }
-    form { display:grid; gap:.75rem; margin-top:1.5rem; }
-    textarea,select { width:100%; box-sizing:border-box; padding:.65rem; font:inherit; }
-    textarea { min-height:7rem; }
-    button { justify-self:start; padding:.6rem 1rem; border:0; background:#7c2d12; color:white; font-weight:700; }
-    #results { margin-top:1.25rem; padding:1rem; background:white; border:1px solid #dbe2ea; min-height:4rem; white-space:pre-wrap; }
-    #sources,.hint { color:#5b6475; } .state-error { color:#b91c1c; }
+    :root { --bg:#f8fafc; --ink:#172033; --muted:#5b6475; --card:#fff; --accent:#7c2d12; --error:#b91c1c; font-family:"Segoe UI",system-ui,sans-serif; color:var(--ink); background:var(--bg); }
+    body { max-width:46rem; margin:0 auto; padding:2.5rem 1rem 4rem; }
+    header { border-left:0.4rem solid var(--accent); padding-left:1rem; margin-bottom:1.5rem; }
+    h1 { margin:0 0 .35rem; font-size:clamp(1.8rem,5vw,2.5rem); letter-spacing:-.03em; }
+    .tagline,.hint,#sources { color:var(--muted); }
+    form,#results { background:var(--card); border:1px solid #dbe2ea; border-radius:.75rem; box-shadow:0 8px 24px #0f172a0d; }
+    form { padding:1.25rem; display:grid; gap:.7rem; }
+    label { font-weight:650; font-size:.92rem; }
+    textarea,select,input[type=file] { width:100%; box-sizing:border-box; font:inherit; }
+    textarea { min-height:8rem; padding:.75rem; border:1px solid #b8c2cf; border-radius:.4rem; }
+    select { padding:.55rem; border:1px solid #b8c2cf; border-radius:.4rem; }
+    button { justify-self:start; padding:.65rem 1.1rem; border:0; border-radius:.4rem; background:var(--accent); color:white; font:inherit; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    #results { margin-top:1.25rem; padding:1rem; min-height:5rem; white-space:pre-wrap; }
+    #sources { font-size:.9rem; }
+    .state-empty { color:#7b8493; } .state-error { color:var(--error); }
   </style>
 </head>
 <body>
-  <header><h1>Tabletop RPG & Board Game Master</h1><p class="hint">Track 8 starter: grounded answers with visible sources.</p></header>
+  <header>
+    <h1>Tabletop RPG & Board Game Master</h1>
+    <p class="tagline">Grounded answers from your own vault, with visible sources and honest limits.</p>
+  </header>
   <form id="ask-form">
     <label for="mode">Ask about</label>
-    <select id="mode">        <option value="rules">Rules questions</option>
+    <select id="mode" name="mode">
+        <option value="rules">Rules questions</option>
         <option value="lore">Campaign lore</option>
-        <option value="encounter">Encounters & scenes</option></select>
+        <option value="encounter">Encounters & scenes</option>
+    </select>
     <label for="query">Your question</label>
-    <textarea id="query" required placeholder="What does the party know about the bell beneath Mustang?"></textarea>
-    <button type="submit">Submit</button>
+    <textarea id="query" name="query" required placeholder="What does the party know about the bell beneath Mustang?"></textarea>
+    <label for="image">Optional map, board, or character-sheet photo (Stretch)</label>
+    <input id="image" name="image" type="file" accept="image/*" />
+    <p class="hint">Images add visible evidence; answers must still be grounded in the vault.</p>
+    <button type="submit" id="submit-btn">Ask with RAG</button>
+
   </form>
-  <section id="results">Ask a question to see the mock response.</section>
+  <section id="results" class="state-empty" aria-live="polite">Ask a question grounded in the seven-note starter vault.</section>
   <p id="sources"></p>
   <script>
-    document.getElementById('ask-form').addEventListener('submit',async(event)=>{
-      event.preventDefault(); const results=document.getElementById('results'); const sources=document.getElementById('sources');
-      results.textContent='Loading…'; sources.textContent='';
+    function fileToBase64(file) {
+      return new Promise((resolve,reject) => {
+        const reader=new FileReader();
+        reader.onload=() => { const value=String(reader.result||''); resolve(value.slice(value.indexOf(',')+1)); };
+        reader.onerror=() => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
+    async function ask(endpoint) {
+      const query=document.getElementById('query').value.trim();
+      const mode=document.getElementById('mode').value;
+      const image=document.getElementById('image').files?.[0];
+      const results=document.getElementById('results');
+      const sources=document.getElementById('sources');
+      const submitBtn=document.getElementById('submit-btn');
+      results.className=''; results.textContent='Loading…'; sources.textContent=''; submitBtn.disabled=true;
       try {
-        const response=await fetch('/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:document.getElementById('query').value.trim(),mode:document.getElementById('mode').value})});
-        const data=await response.json(); if(!response.ok)throw new Error(data.error||'Request failed');
-        results.textContent=data.response||JSON.stringify(data); if(data.sources?.length)sources.textContent='Sources: '+data.sources.join(', ');
-      } catch(error) { results.className='state-error'; results.textContent=String(error); }
-    });
+        const body={ query, mode };
+        if (endpoint==='/query' && image) { body.base64Image=await fileToBase64(image); body.mimeType=image.type||'image/jpeg'; }
+        const response=await fetch(endpoint,{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body) });
+        const data=await response.json();
+        if (!response.ok) { results.className='state-error'; results.textContent=data.error||'Request failed'; return; }
+        results.textContent=data.response||JSON.stringify(data);
+        if (Array.isArray(data.sources)&&data.sources.length) sources.textContent='Sources: '+data.sources.join(', ');
+      } catch (error) { results.className='state-error'; results.textContent=String(error); }
+      finally { submitBtn.disabled=false; }
+    }
+    document.getElementById('ask-form').addEventListener('submit',(event) => { event.preventDefault(); ask('/query'); });
   </script>
 </body>
 </html>
