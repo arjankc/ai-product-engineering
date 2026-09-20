@@ -5,14 +5,20 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { checkInputSafety } from './lib/safety.js';
 import { normalizeQuery } from './lib/utils.js';
-// Session 7+: uncomment when you create the client
-// import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 // import { queryWithTools } from './lib/tools.js';
 // import { ragQuery } from './lib/rag.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MODEL = 'gemini-2.5-flash';
+
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.warn('Warning: GEMINI_API_KEY is not set. /query will fail until .env is configured.');
+}
+const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,11 +47,20 @@ app.post('/query', async (req, res) => {
   // TODO Session 14: call checkInputSafety(userInput) and reject unsafe input
   void checkInputSafety;
 
-  // TODO Session 7: replace mock with Gemini generateContent (server-side only)
-  // TODO Session 9: replace direct generate with ragQuery(ai, userInput)
-  //   return res.json({ response: result.answer, sources: result.sources });
-  const mockResponse = `Mock AI response to: ${userInput}`;
-  return res.json({ response: mockResponse, sources: [] });
+  try {
+    // Phase 2: direct Gemini (Phase 3 replaces this with ragQuery)
+    const response = await ai.models.generateContent({
+      model: MODEL,
+      contents: userInput,
+      config: {
+        systemInstruction:
+          'You are a local hardware troubleshooting assistant. Prefer device-specific, safety-conscious answers. If unsure, say you do not know.',
+      },
+    });
+    return res.json({ response: response.text ?? '', sources: [] });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || String(err) });
+  }
 });
 
 /**
@@ -68,5 +83,5 @@ app.post('/tools', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`AI Product Engineering starter → http://localhost:${PORT}`);
+  console.log(`Hardware Troubleshooter (Phase 2) → http://localhost:${PORT}`);
 });
