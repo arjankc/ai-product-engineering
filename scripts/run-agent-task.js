@@ -19,26 +19,38 @@ async function askAi(ai, prompt) {
 
 async function runAgentTask(ai, goal) {
   const steps = [];
+
+  // The 'context' variable acts as the agent's memory payload
   let context = `Goal: ${goal}\n\n`;
 
-  const plan = await askAi(ai, `${context}List 4 specific steps. Number them.`);
+  // Step 1: PLAN
+  console.log('Agent is planning...');
+  const plan = await askAi(
+    ai,
+    `${context}List 4 specific steps to achieve this goal. Number them 1 to 4.`
+  );
   steps.push({ step: 'PLAN', output: plan });
-  context += `Plan:\n${plan}\n\n`;
+  context += `Plan:\n${plan}\n\n`; // Append the plan to memory
 
+  // Step 2: EXECUTE (A simplified loop)
   for (let stepNum = 1; stepNum <= 4; stepNum += 1) {
+    console.log(`Agent is executing step ${stepNum}...`);
     const output = await askAi(
       ai,
-      `${context}Execute step ${stepNum} only. Produce complete output for this step.`
+      `${context}Execute step ${stepNum} only. Produce complete output for this specific step.`
     );
     steps.push({ step: `EXECUTE_${stepNum}`, output });
-    context += `Step ${stepNum} output:\n${output}\n\n`;
+    context += `Step ${stepNum} output:\n${output}\n\n`; // Append output to memory
   }
 
+  // Step 3: SYNTHESIZE
+  console.log('Agent is synthesizing final deliverable...');
   const final = await askAi(
     ai,
-    `${context}Combine all step outputs into one coherent deliverable.`
+    `${context}Combine all step outputs into one final, highly professional deliverable. Remove redundant text.`
   );
   steps.push({ step: 'SYNTHESISE', output: final });
+
   return { steps, finalOutput: final };
 }
 
