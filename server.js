@@ -7,12 +7,11 @@ import { checkInputSafety } from './lib/safety.js';
 import { normalizeQuery } from './lib/utils.js';
 import { GoogleGenAI } from '@google/genai';
 import { queryWithTools } from './lib/tools.js';
-// import { ragQuery } from './lib/rag.js';
+import { ragQuery } from './lib/rag.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MODEL = 'gemini-2.5-flash';
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
@@ -48,26 +47,13 @@ app.post('/query', async (req, res) => {
   void checkInputSafety;
 
   try {
-    // Lab 7.3: system prompt from prompts.md §1, adapted for Track 3 hardware domain
-    // Phase 2: direct Gemini (Phase 3 replaces this with ragQuery)
-    const temperature = typeof req.body.temperature === 'number'
-      ? Math.min(2, Math.max(0, req.body.temperature))
-      : 0.3;
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents: userInput,
-      config: {
-        temperature,
-        systemInstruction:
-          'You are a local hardware troubleshooting assistant grounded strictly in the provided knowledge base. ' +
-          'Answer user questions accurately using only the facts in the CONTEXT section when available. ' +
-          'Prefer device-specific, safety-conscious answers. ' +
-          'If the information cannot be found in the context, state clearly that the knowledge base does not contain the answer. ' +
-          'Always cite the relevant source filenames in your response. ' +
-          'If unsure about safety or electrical risk, escalate clearly.',
-      },
+    // Lab 9.4: RAG pipeline replaces the direct Gemini call from Session 7
+    const result = await ragQuery(ai, userInput);
+    return res.json({
+      response: result.answer,   // frontend reads data.response
+      sources: result.sources,   // frontend reads data.sources
+      topScore: result.topScore, // Lab 9.4 stretch: confidence score
     });
-    return res.json({ response: response.text ?? '', sources: [] });
   } catch (err) {
     return res.status(500).json({ error: err.message || String(err) });
   }
@@ -91,5 +77,5 @@ app.post('/tools', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Hardware Troubleshooter (Phase 2) → http://localhost:${PORT}`);
+  console.log(`Hardware Troubleshooter (Phase 3 RAG) → http://localhost:${PORT}`);
 });

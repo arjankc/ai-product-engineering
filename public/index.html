@@ -50,6 +50,7 @@
   </form>
   <section id="results" class="state-empty" aria-live="polite">Ask a question to see results.</section>
   <p id="sources"></p>
+  <p id="confidence"></p>
   <script>
     // Temperature slider live display + warning
     const slider = document.getElementById('temperature');
@@ -68,9 +69,11 @@
       const temperature = parseFloat(document.getElementById('temperature').value);
       const results = document.getElementById('results');
       const sources = document.getElementById('sources');
+      const confidence = document.getElementById('confidence');
       results.className = '';
       results.textContent = 'Loading…';
       sources.textContent = '';
+      confidence.textContent = '';
       try {
         const res = await fetch('/query', {
           method: 'POST',
@@ -86,6 +89,12 @@
         results.textContent = data.response || JSON.stringify(data);
         if (Array.isArray(data.sources) && data.sources.length) {
           sources.textContent = 'Sources: ' + data.sources.join(', ');
+        }
+        // Lab 9.4 stretch: show retrieval confidence score
+        if (typeof data.topScore === 'number') {
+          const pct = (data.topScore * 100).toFixed(1);
+          const colour = data.topScore >= 0.7 ? '#2a7a2a' : data.topScore >= 0.5 ? '#b07000' : '#b00020';
+          confidence.innerHTML = `Retrieval confidence: <strong style="color:${colour}">${pct}%</strong>`;
         }
       } catch (err) {
         results.className = 'state-error';
