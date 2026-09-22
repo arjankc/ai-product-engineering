@@ -48,13 +48,23 @@ app.post('/query', async (req, res) => {
   void checkInputSafety;
 
   try {
+    // Lab 7.3: system prompt from prompts.md §1, adapted for Track 3 hardware domain
     // Phase 2: direct Gemini (Phase 3 replaces this with ragQuery)
+    const temperature = typeof req.body.temperature === 'number'
+      ? Math.min(2, Math.max(0, req.body.temperature))
+      : 0.3;
     const response = await ai.models.generateContent({
       model: MODEL,
       contents: userInput,
       config: {
+        temperature,
         systemInstruction:
-          'You are a local hardware troubleshooting assistant. Prefer device-specific, safety-conscious answers. If unsure, say you do not know.',
+          'You are a local hardware troubleshooting assistant grounded strictly in the provided knowledge base. ' +
+          'Answer user questions accurately using only the facts in the CONTEXT section when available. ' +
+          'Prefer device-specific, safety-conscious answers. ' +
+          'If the information cannot be found in the context, state clearly that the knowledge base does not contain the answer. ' +
+          'Always cite the relevant source filenames in your response. ' +
+          'If unsure about safety or electrical risk, escalate clearly.',
       },
     });
     return res.json({ response: response.text ?? '', sources: [] });
