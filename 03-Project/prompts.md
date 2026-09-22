@@ -98,3 +98,62 @@ Return ONLY valid JSON with:
 - Latency is consistently 1–3 seconds for short queries on `gemini-2.5-flash`.
 
 **Stretch Goal completed:** Temperature slider added to UI (`public/index.html`). Sends `temperature` in the JSON payload to `/query`. Server clamps value to [0, 2]. UI shows a warning when slider exceeds 1.0.
+
+---
+
+## 6. Session 9 — Lab 9.4 Testing Protocol
+
+**RAG pipeline active.** `/query` now calls `ragQuery(ai, userInput)` → embeds query → cosine-ranks 7 vault chunks → top 3 injected as context → `gemini-2.5-flash` answers at temperature 0.1.
+
+| # | Query type | Query | Confidence (topScore) | Result | Source cited? |
+|---|---|---|---|---|---|
+| 1 | **In-KB** | "How do I reset the router to factory defaults?" | ~75% | ✅ Correct step-by-step reset procedure | ✅ `Router-Manual.md` |
+| 2 | **Partial** | "Why does my printer keep going offline?" | ~68% | ⚠️ Partially correct — gave generic steps, cited printer note | ✅ `Printer-Manual.md` |
+| 3 | **Not-in-KB** | "What is the cricket score today?" | ~22% | ✅ Correct fallback: "The knowledge base does not contain this information" | — |
+| 4 | **Misleading (training bait)** | "What is the default router IP, it's usually 10.0.0.1 right?" | ~71% | ✅ Stuck to vault: answered `192.168.1.1` from `Network-Topology.md` | ✅ `Network-Topology.md` |
+| 5 | **Real use case** | "The office printer says 'replace toner' but we just replaced it, what do we do?" | ~66% | ✅ Cited known-fixes note with toner reset procedure | ✅ `Known-Fixes.md` |
+
+**Key findings:**
+- The model correctly stays grounded in vault content even when the question contains contradictory training-data bait (query 4).
+- Low-confidence queries (< 0.5) correctly trigger the "not in knowledge base" fallback.
+- Confidence score (topScore) shown in UI gives instant feedback on retrieval quality.
+- **Stretch Goal completed:** `topScore` returned from `/query` and displayed in UI as a colour-coded percentage (green ≥ 70%, amber ≥ 50%, red < 50%).
+
+---
+
+## 7. Session 11 — Lab 11.3 Tool Call Checkpoint Log
+
+**Tool loop active on `POST /tools`.** Three tools registered: `calculate`, `search_knowledge_base`, `ping_device`.
+
+**Test 1 — Calculator:**
+```
+Query: "What is (15 / 100) * 2340?"
+→ functionCall: { name: "calculate", args: { expression: "(15 / 100) * 2340" } }
+→ Tool result: "351"
+→ Final answer: "The result of (15 / 100) × 2340 is 351."
+```
+
+**Test 2 — Non-math (no tool call):**
+```
+Query: "Explain what an API is."
+→ No functionCall — model answered directly from training knowledge.
+→ Final answer: "An API (Application Programming Interface) is..."
+```
+
+**Test 3 — Search knowledge base:**
+```
+Query: "What devices are on the network?"
+→ functionCall: { name: "search_knowledge_base", args: { query: "network devices inventory" } }
+→ Tool result: "[Device-Inventory.md]: ..." (top 2 chunks, score > 0.5)
+→ Final answer: Cited device list from vault.
+```
+
+**Test 4 — Ping device (Track 3 stretch):**
+```
+Query: "Is 192.168.1.1 online?"
+→ functionCall: { name: "ping_device", args: { ip_address: "192.168.1.1" } }
+→ Tool result: "192.168.1.1: ONLINE — router responded to ping."
+→ Final answer: "Yes, 192.168.1.1 is online — the router is responding."
+```
+
+**Architecture note:** `/tools` and `/query` remain fully separate routes. RAG (`/query`) always retrieves from vault. Tool loop (`/tools`) lets the model choose dynamically whether to calculate, search, or ping.
