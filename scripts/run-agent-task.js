@@ -17,6 +17,23 @@ async function askAi(ai, prompt) {
   return response.text ?? '';
 }
 
+/**
+ * Stretch Goal: count numbered steps in the plan text.
+ * Looks for lines like "1.", "2.", "3." etc.
+ * Returns at least 1 and at most 8 (safety cap).
+ */
+function countPlanSteps(planText) {
+  const matches = planText.match(/^\s*\d+\./gm);
+  const count = matches ? matches.length : 0;
+  const clamped = Math.min(Math.max(count, 1), 8);
+  if (count < 4) {
+    console.warn(
+      `⚠️  Plan has only ${count} numbered step(s). Adjusting loop to ${clamped} iteration(s).`
+    );
+  }
+  return clamped;
+}
+
 async function runAgentTask(ai, goal) {
   const steps = [];
 
@@ -32,8 +49,12 @@ async function runAgentTask(ai, goal) {
   steps.push({ step: 'PLAN', output: plan });
   context += `Plan:\n${plan}\n\n`; // Append the plan to memory
 
-  // Step 2: EXECUTE (A simplified loop)
-  for (let stepNum = 1; stepNum <= 4; stepNum += 1) {
+  // Stretch Goal: parse step count from the plan so the loop is dynamic
+  const numSteps = countPlanSteps(plan);
+  console.log(`Plan parsed: executing ${numSteps} step(s).`);
+
+  // Step 2: EXECUTE (dynamic loop based on parsed plan)
+  for (let stepNum = 1; stepNum <= numSteps; stepNum += 1) {
     console.log(`Agent is executing step ${stepNum}...`);
     const output = await askAi(
       ai,
