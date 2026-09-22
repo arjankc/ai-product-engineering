@@ -15,32 +15,57 @@
     .hint { color: #666; font-size: 0.9rem; }
     .state-empty { color: #888; }
     .state-error { color: #b00020; }
+    /* Temperature slider */
+    .temp-row { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+    .temp-row label { white-space: nowrap; font-size: 0.9rem; }
+    .temp-row input[type=range] { flex: 1; }
+    .temp-row output { font-size: 0.9rem; font-variant-numeric: tabular-nums; min-width: 2.5rem; }
+    .temp-warning { color: #b00020; font-size: 0.8rem; display: none; }
   </style>
 </head>
 <body>
   <h1>Local Hardware Troubleshooting Bot</h1>
-  <p class="hint">
-    Track 3 starter UI. <strong>Session 6 Core:</strong> customize this further for your product
-    (layout, empty / loading / error states). Leaving the generic kit look fails Core.
-  </p>
   <form id="ask-form">
     <label for="mode">Ask about</label>
     <select id="mode" name="mode">
       <option value="devices">Device manuals</option>
-      <option value="network">Network & connectivity</option>
-      <option value="repairs">Known fixes & safety</option>
+      <option value="network">Network &amp; connectivity</option>
+      <option value="repairs">Known fixes &amp; safety</option>
     </select>
     <label for="query">Your question</label>
     <textarea id="query" name="query" required></textarea>
+
+    <!-- Lab 7.4 Stretch: temperature slider (prototyping/testing only) -->
+    <div class="temp-row">
+      <label for="temperature">🌡️ Temperature</label>
+      <input type="range" id="temperature" name="temperature"
+             min="0" max="2" step="0.1" value="0.3" />
+      <output id="temp-display" for="temperature">0.3</output>
+    </div>
+    <p class="temp-warning" id="temp-warning">
+      ⚠️ High temperature (&gt;1.0) may break structured outputs. For testing only.
+    </p>
+
     <button type="submit">Submit</button>
   </form>
   <section id="results" class="state-empty" aria-live="polite">Ask a question to see results.</section>
   <p id="sources"></p>
   <script>
+    // Temperature slider live display + warning
+    const slider = document.getElementById('temperature');
+    const display = document.getElementById('temp-display');
+    const warning = document.getElementById('temp-warning');
+    slider.addEventListener('input', () => {
+      const val = parseFloat(slider.value).toFixed(1);
+      display.textContent = val;
+      warning.style.display = parseFloat(val) > 1.0 ? 'block' : 'none';
+    });
+
     document.getElementById('ask-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const query = document.getElementById('query').value.trim();
       const mode = document.getElementById('mode').value;
+      const temperature = parseFloat(document.getElementById('temperature').value);
       const results = document.getElementById('results');
       const sources = document.getElementById('sources');
       results.className = '';
@@ -50,7 +75,7 @@
         const res = await fetch('/query', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, mode }),
+          body: JSON.stringify({ query, mode, temperature }),
         });
         const data = await res.json();
         if (!res.ok) {
