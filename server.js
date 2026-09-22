@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { checkInputSafety } from './lib/safety.js';
 import { normalizeQuery } from './lib/utils.js';
 import { GoogleGenAI } from '@google/genai';
-// import { queryWithTools } from './lib/tools.js';
+import { queryWithTools } from './lib/tools.js';
 // import { ragQuery } from './lib/rag.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -74,22 +74,20 @@ app.post('/query', async (req, res) => {
 });
 
 /**
- * Session 11 Core: tool calling lives here so RAG can stay on /query.
- * After Session 7, create `ai`, then uncomment the body below.
+ * Session 11 Core: tool calling on POST /tools — separate from RAG on POST /query.
  */
 app.post('/tools', async (req, res) => {
   const userInput = String(req.body?.query ?? '').trim();
   if (!userInput) {
     return res.status(400).json({ error: 'No query provided' });
   }
-
-  // TODO Session 11:
-  // const text = await queryWithTools(ai, userInput);
-  // return res.json({ response: text, sources: [] });
-  return res.status(501).json({
-    error:
-      'TODO Session 11: wire queryWithTools(ai, userInput). Keep RAG on /query.',
-  });
+  try {
+    // Lab 11.1: wire queryWithTools — calculator + search_knowledge_base + ping_device
+    const text = await queryWithTools(ai, userInput);
+    return res.json({ response: text, sources: [] });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || String(err) });
+  }
 });
 
 app.listen(PORT, () => {
