@@ -9,15 +9,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GoogleGenAI } from '@google/genai';
+import { EXTRACTION_PROMPT, EXTRACTION_MODEL, mimeFor } from '../lib/extraction.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SAMPLE_DIR = path.join(__dirname, '..', 'sample-images');
-
-const EXTRACTION_PROMPT = `Extract the key information from this image.
-Return ONLY valid JSON with:
-- title: string
-- summary: string
-- key_points: string[] (up to 5)`;
 
 function findSampleImage() {
   if (!fs.existsSync(SAMPLE_DIR)) return null;
@@ -25,13 +20,6 @@ function findSampleImage() {
     .readdirSync(SAMPLE_DIR)
     .filter(f => /\.(png|jpe?g|webp)$/i.test(f));
   return files[0] ? path.join(SAMPLE_DIR, files[0]) : null;
-}
-
-function mimeFor(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-  if (ext === '.png') return 'image/png';
-  if (ext === '.webp') return 'image/webp';
-  return 'image/jpeg';
 }
 
 async function main() {
@@ -52,7 +40,7 @@ async function main() {
   const buffer = fs.readFileSync(imagePath);
   const ai = new GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: EXTRACTION_MODEL,
     contents: [
       {
         role: 'user',
