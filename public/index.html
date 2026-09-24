@@ -10,7 +10,10 @@
     textarea, select { width: 100%; min-height: 6rem; }
     select { min-height: auto; margin-bottom: 0.75rem; }
     button { margin-top: 0.75rem; padding: 0.5rem 1rem; }
-    #results { margin-top: 1.5rem; padding: 1rem; background: #f4f4f4; min-height: 4rem; white-space: pre-wrap; font-family: ui-monospace, monospace; }
+    #results, #extract-results { margin-top: 1.5rem; padding: 1rem; background: #f4f4f4; min-height: 4rem; white-space: pre-wrap; font-family: ui-monospace, monospace; overflow-x: auto; }
+    h2 { font-size: 1.1rem; margin-top: 2rem; }
+    hr { margin: 2rem 0 0; border: 0; border-top: 1px solid #ddd; }
+    input[type=file] { width: 100%; margin-top: 0.25rem; }
     #sources { color: #555; font-size: 0.9rem; }
     .hint { color: #666; font-size: 0.9rem; }
     .state-empty { color: #888; }
@@ -51,6 +54,20 @@
   <section id="results" class="state-empty" aria-live="polite">Ask a question to see results.</section>
   <p id="sources"></p>
   <p id="confidence"></p>
+
+  <!-- Session 12 Stretch: vision upload -->
+  <hr />
+  <h2>Upload an image</h2>
+  <form id="upload-form">
+    <label for="image">Device label, indicator light, or handwritten note</label>
+    <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/webp" required />
+    <button type="submit">Extract JSON</button>
+    <p class="hint">
+      Held in memory and sent to Gemini for extraction; nothing is written to disk.
+    </p>
+  </form>
+  <section id="extract-results" class="state-empty" aria-live="polite">Upload an image to see extracted JSON.</section>
+  <p id="extract-meta" class="hint"></p>
   <script>
     // Temperature slider live display + warning
     const slider = document.getElementById('temperature');
@@ -99,6 +116,40 @@
       } catch (err) {
         results.className = 'state-error';
         results.textContent = String(err);
+      }
+    });
+
+    // Session 12 Stretch: upload a photo to POST /extract-image (multipart/form-data).
+    // No Content-Type header is set on purpose — the browser adds the multipart boundary.
+    document.getElementById('upload-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const out = document.getElementById('extract-results');
+      const meta = document.getElementById('extract-meta');
+      const file = document.getElementById('image').files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      out.className = '';
+      out.textContent = `Extracting ${file.name} (${Math.round(file.size / 1024)} kB)…`;
+      meta.textContent = '';
+
+      try {
+        const res = await fetch('/extract-image', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) {
+          out.className = 'state-error';
+          out.textContent = data.error || 'Upload failed';
+          if (data.rawText) out.textContent += '\n\nRaw reply:\n' + data.rawText;
+          return;
+        }
+        out.textContent = JSON.stringify(data.data, null, 2);
+        meta.textContent = `${data.file.name} · ${(data.file.sizeBytes / 1024).toFixed(1)} kB · `
+          + `${data.data.doc_type} · ${data.attempts} model call(s)`;
+      } catch (err) {
+        out.className = 'state-error';
+        out.textContent = String(err);
       }
     });
   </script>

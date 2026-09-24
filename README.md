@@ -32,6 +32,7 @@ Open http://localhost:3000. See also [BRANCHES.md](BRANCHES.md) and [HOW-TO-USE-
 
 - Upload a device label, cable layout, or indicator-light photo.
 - Interpret it using principles and constraints from the vault only.
+- `POST /extract-image` (multer, in-memory) backs the upload form in `public/index.html` and returns the same schema as `npm run extract-image`.
 
 ### 3. Tool calling (Stretch)
 
