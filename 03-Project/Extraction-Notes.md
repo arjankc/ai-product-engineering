@@ -24,6 +24,14 @@ npm run extract-image -- ./sample-images/b.png
 > Reliability note: the API returned `503 UNAVAILABLE` ("model is currently experiencing high
 > demand") on roughly half of the runs. The script has no retry, so a run fails hard and must be
 > repeated. Individual results below are from successful runs.
+>
+> The free tier then also hit its **daily** cap: `429 RESOURCE_EXHAUSTED`, "Quota exceeded for
+> limit: 20, model: gemini-2.5-flash". The limit is per model per project, so the extractor can be
+> moved off an exhausted model with `GEMINI_MODEL=gemini-2.5-flash-lite` and no code change.
+> A per-day quota is not worth retrying — it resets in hours, not seconds — so `isRetryableError`
+> now fails fast on it instead of burning four backoff attempts. `scripts/extract-image.js` still
+> calls the API directly and so still prints a raw stack trace on failure, while the folder and
+> upload paths degrade in a readable way.
 
 ## Image 1 Evaluation (`sample-images/a.jpg`)
 
