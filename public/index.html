@@ -79,6 +79,29 @@
       warning.style.display = parseFloat(val) > 1.0 ? 'block' : 'none';
     });
 
+    /**
+     * A network-level failure (server stopped, connection reset) rejects the fetch itself and
+     * reaches the user as a bare "TypeError: Failed to fetch". Retry once, then say something
+     * a human can act on.
+     */
+    async function postWithRetry(url, body, headers) {
+      const init = { method: 'POST', body };
+      if (headers) init.headers = headers;
+      try {
+        return await fetch(url, init);
+      } catch (err) {
+        if (!(err instanceof TypeError)) throw err;
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        return fetch(url, init);
+      }
+    }
+
+    function describeFetchError(err) {
+      return err instanceof TypeError
+        ? 'Could not reach the server — it may have stopped. Restart it with "npm run dev" and try again.'
+        : String(err);
+    }
+
     document.getElementById('ask-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const query = document.getElementById('query').value.trim();
@@ -92,11 +115,11 @@
       sources.textContent = '';
       confidence.textContent = '';
       try {
-        const res = await fetch('/query', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, mode, temperature }),
-        });
+        const res = await postWithRetry(
+          '/query',
+          JSON.stringify({ query, mode, temperature }),
+          { 'Content-Type': 'application/json' }
+        );
         const data = await res.json();
         if (!res.ok) {
           results.className = 'state-error';
@@ -115,7 +138,7 @@
         }
       } catch (err) {
         results.className = 'state-error';
-        results.textContent = String(err);
+        results.textContent = describeFetchError(err);
       }
     });
 
@@ -136,7 +159,7 @@
       meta.textContent = '';
 
       try {
-        const res = await fetch('/extract-image', { method: 'POST', body: formData });
+        const res = await postWithRetry('/extract-image', formData);
         const data = await res.json();
         if (!res.ok) {
           out.className = 'state-error';
@@ -149,7 +172,7 @@
           + `${data.data.doc_type} · ${data.attempts} model call(s)`;
       } catch (err) {
         out.className = 'state-error';
-        out.textContent = String(err);
+        out.textContent = describeFetchError(err);
       }
     });
   </script>
